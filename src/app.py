@@ -52,13 +52,13 @@ class GameRunner:
     def __init__(self, manager: ConnectionManager):
         self.game = Game(state=StateManager())
         self.connection_manager = manager
-        self.next_switch = dt.datetime.now()
+        self.next_switch = dt.datetime.now(dt.timezone.utc)
 
     async def run_game_loop(self):
         print("Initializing game loop")
         while True:
             await asyncio.sleep(0.1)
-            if dt.datetime.now() <= self.next_switch:
+            if dt.datetime.now(dt.timezone.utc) <= self.next_switch:
                 continue
 
             if self.game.has_ongoing_round:
@@ -67,7 +67,7 @@ class GameRunner:
                     f"Completed round for word {self.game.get_game_state()[0].theme_word}"
                 )
                 self.game.complete_current_round()
-                self.next_switch = dt.datetime.now() + dt.timedelta(
+                self.next_switch = dt.datetime.now(dt.timezone.utc) + dt.timedelta(
                     seconds=INTER_ROUND_DURATION_SECONDS
                 )
             else:
@@ -76,7 +76,7 @@ class GameRunner:
                 print(
                     f"Started round for word {self.game.get_game_state()[0].theme_word}"
                 )
-                self.next_switch = dt.datetime.now() + dt.timedelta(
+                self.next_switch = dt.datetime.now(dt.timezone.utc) + dt.timedelta(
                     seconds=ROUND_DURATION_SECONDS
                 )
 
@@ -155,7 +155,7 @@ def healthcheck():
 
 @app.post("/switch")
 def switch():
-    runner.next_switch = dt.datetime.now()
+    runner.next_switch = dt.datetime.now(dt.timezone.utc)
 
 
 @app.websocket("/ws")
