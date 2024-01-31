@@ -1,5 +1,6 @@
 from src.entities import PlayerName, RoundId, Round, RoundResult, GuessList, GameState
 
+from typing import Union
 
 class StateManager:
     max_rounds_stored = 10
@@ -28,7 +29,7 @@ class StateManager:
             if round_id in allowed_round_ids
         }
 
-    def get_latest_round(self) -> Round | None:
+    def get_latest_round(self) -> Union[Round, None]:
         if len(self.state.rounds) == 0:
             return None
         return self.state.rounds[-1]

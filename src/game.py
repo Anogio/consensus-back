@@ -1,6 +1,7 @@
 import uuid
 import random
 from collections import defaultdict
+from typing import Union, Tuple
 
 from src.adapter import StateManager
 from src.entities import Round, PlayerName, GuessList, GameError, RoundId, RoundResult
@@ -72,7 +73,7 @@ class Game:
         result = compute_round_result(guesses_by_player)
         self.state.add_round_result(round_id=latest_round.round_id, result=result)
 
-    def get_game_state(self) -> tuple[Round | None, RoundResult | None]:
+    def get_game_state(self) -> Tuple[Union[Round, None], Union[RoundResult, None]]:
         latest_round = self.state.get_latest_round()
         if latest_round is None:
             return None, None

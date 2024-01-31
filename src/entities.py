@@ -1,5 +1,4 @@
 import dataclasses
-import datetime as dt
 from uuid import UUID
 
 from src.constants import N_GUESSES
