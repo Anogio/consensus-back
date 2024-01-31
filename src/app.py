@@ -2,7 +2,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import asyncio
 import datetime as dt
 from fastapi.middleware.cors import CORSMiddleware
-
+from uvicorn.protocols.utils import ClientDisconnected
 
 from src.adapter import StateManager
 from src.entities import PlayerName, GuessList, GameError
@@ -45,7 +45,10 @@ class ConnectionManager:
 
     async def broadcast(self, message: dict):
         for connection in self.active_connections:
-            await connection.send_json(message)
+            try:
+                await connection.send_json(message)
+            except ClientDisconnected:
+                self.disconnect(connection)
 
 
 class GameRunner:
@@ -54,6 +57,12 @@ class GameRunner:
         self.connection_manager = manager
         self.next_switch = dt.datetime.now(dt.timezone.utc)
 
+    async def run_game_loop_forever(self):
+        while True:
+            try:
+                await self.run_game_loop()
+            except Exception as e:
+                print("Loop failed with exception: ", repr(e))
     async def run_game_loop(self):
         print("Initializing game loop")
         while True:
@@ -145,7 +154,7 @@ runner = GameRunner(manager=connection_manager)
 
 @app.on_event("startup")
 async def app_startup():
-    asyncio.create_task(runner.run_game_loop())
+    asyncio.create_task(runner.run_game_loop_forever())
 
 
 @app.get("/")
