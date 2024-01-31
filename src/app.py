@@ -34,14 +34,13 @@ class GameRunner:
     def __init__(self, manager: ConnectionManager):
         self.game = Game(state=StateManager())
         self.connection_manager = manager
+        self.next_switch = dt.datetime.now()
 
     async def run_game_loop(self):
-        self.game.start_new_round()
-        next_switch = dt.datetime.now() + dt.timedelta(seconds=ROUND_DURATION_SECONDS)
-
+        print("Initializing game loop")
         while True:
             await asyncio.sleep(0.1)
-            if dt.datetime.now() <= next_switch:
+            if dt.datetime.now() <= self.next_switch:
                 continue
 
             if self.game.has_ongoing_round:
@@ -50,8 +49,8 @@ class GameRunner:
                     f"Completed round for word {self.game.get_game_state()[0].theme_word}"
                 )
                 self.game.complete_current_round()
-                next_switch = dt.datetime.now() + dt.timedelta(
-                    seconds=ROUND_DURATION_SECONDS
+                self.next_switch = dt.datetime.now() + dt.timedelta(
+                    seconds=INTER_ROUND_DURATION_SECONDS
                 )
             else:
                 # Time to start a new round
@@ -59,16 +58,16 @@ class GameRunner:
                 print(
                     f"Started round for word {self.game.get_game_state()[0].theme_word}"
                 )
-                next_switch = dt.datetime.now() + dt.timedelta(
-                    seconds=INTER_ROUND_DURATION_SECONDS
+                self.next_switch = dt.datetime.now() + dt.timedelta(
+                    seconds=ROUND_DURATION_SECONDS
                 )
 
             await self.broadcast_game_state()
 
     @property
     def game_state_message(self) -> dict:
-        round, result = self.game.get_game_state()
-        if round is None:
+        latest_round, result = self.game.get_game_state()
+        if latest_round is None:
             raise ValueError(
                 "Unexpected: round should never be None after initialization"
             )
@@ -76,22 +75,37 @@ class GameRunner:
         if result is None:
             return {
                 "type": "game_state",
-                "round": {"theme_word": round.theme_word, "is_completed": False},
+                "data": {
+                    "round": {
+                        "theme_word": latest_round.theme_word,
+                        "is_completed": False,
+                    },
+                    "round_end": self.next_switch.isoformat(),
+                },
             }
         return {
             "type": "game_state",
-            "round": {"theme_word": round.theme_word, "is_completed": True},
-            "result": {
-                "ranked_value_by_word": sorted(
-                    result.value_by_word.items(),
-                    key=lambda word, value: value,
-                    reverse=True,
-                ),
-                "ranked_score_by_player_name": sorted(
-                    result.score_by_player_name.items(),
-                    key=lambda player, value: value,
-                    reverse=True,
-                ),
+            "data": {
+                "round": {"theme_word": latest_round.theme_word, "is_completed": True},
+                "next_round_start": self.next_switch.isoformat(),
+                "result": {
+                    "ranked_value_by_word": [
+                        {"word": item[0], "value": item[1]}
+                        for item in sorted(
+                            result.value_by_word.items(),
+                            key=lambda item: item[1],
+                            reverse=True,
+                        )
+                    ],
+                    "ranked_score_by_player_name": [
+                        {"player_name": item[0], "score": item[1]}
+                        for item in sorted(
+                            result.score_by_player_name.items(),
+                            key=lambda item: item[1],
+                            reverse=True,
+                        )
+                    ],
+                },
             },
         }
 
@@ -116,14 +130,24 @@ async def app_startup():
     asyncio.create_task(runner.run_game_loop())
 
 
+@app.post("/switch")
+def switch():
+    runner.next_switch = dt.datetime.now()
+
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    print("Connection")
     player_name = websocket.query_params["player_name"]
+    print(f"Connected player: {player_name}")
 
-    await websocket.accept()
+    await connection_manager.connect(websocket)
+    await connection_manager.broadcast(
+        {
+            "type": "players_info",
+            "data": {"n_players": len(connection_manager.active_connections)},
+        }
+    )
     try:
-        await connection_manager.connect(websocket)
         await runner.personal_send_game_state(websocket=websocket)
         while True:
             data = await websocket.receive_json()
@@ -132,6 +156,14 @@ async def websocket_endpoint(websocket: WebSocket):
                 # Only one type of event: set the guesses
                 runner.set_guesses(player_name=player_name, guesses=data["words"])
             except GameError as e:
-                await websocket.send_json({"type": "error", "message": str(e)})
+                await websocket.send_json(
+                    {"type": "error", "data": {"message": str(e)}}
+                )
     except WebSocketDisconnect:
         connection_manager.disconnect(websocket)
+        await connection_manager.broadcast(
+            {
+                "type": "players_info",
+                "data": {"n_players": len(connection_manager.active_connections)},
+            }
+        )

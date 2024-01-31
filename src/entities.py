@@ -28,12 +28,19 @@ class GuessList:
     """A list of 0 to N_GUESSES distinct words"""
 
     def __init__(self, words: list[str]):
-        words_processed = [word.lower() for word in words]
+        words_processed = [word.lower().strip() for word in words]
+        if words_processed != words:
+            raise GameError(
+                "Technical error: all guesses shoud be sent lowercase with no trailing or leading spaces"
+            )
         if len(words_processed) > N_GUESSES:
             raise GameError("Too many guesses")
-        if len(set(words_processed)) != len(words):
+        if len(set(words_processed)) != len(words_processed):
             raise GameError("Some words are identical")
         self.words = words_processed
+
+    def __repr__(self):
+        return f"GuessList({self.words})"
 
 
 @dataclasses.dataclass

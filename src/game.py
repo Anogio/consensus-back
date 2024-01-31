@@ -7,16 +7,16 @@ from src.entities import Round, PlayerName, GuessList, GameError, RoundId, Round
 from src.constants import THEME_WORDS
 
 
-def compute_round_result(guesses_by_user: dict[PlayerName, GuessList]) -> RoundResult:
+def compute_round_result(guesses_by_player: dict[PlayerName, GuessList]) -> RoundResult:
     word_counts = defaultdict(int)
-    for guess_list in guesses_by_user.values():
+    for guess_list in guesses_by_player.values():
         for word in guess_list.words:
             word_counts[word] += 1
     word_point_values = {k: v - 1 for k, v in word_counts.items()}
     score_by_player_name = {}
-    for user_name, guess_list in guesses_by_user.items():
-        user_score = sum(word_point_values[word] for word in guess_list.words)
-        score_by_player_name[user_name] = user_score
+    for player_name, guess_list in guesses_by_player.items():
+        player_score = sum(word_point_values[word] for word in guess_list.words)
+        score_by_player_name[player_name] = player_score
     return RoundResult(
         value_by_word=word_point_values, score_by_player_name=score_by_player_name
     )
@@ -68,8 +68,8 @@ class Game:
         ):
             raise GameError("Cannot complete round as there is no ongoing round")
 
-        guesses_by_user = self.state.get_all_guesses_for_round(latest_round.round_id)
-        result = compute_round_result(guesses_by_user)
+        guesses_by_player = self.state.get_all_guesses_for_round(latest_round.round_id)
+        result = compute_round_result(guesses_by_player)
         self.state.add_round_result(round_id=latest_round.round_id, result=result)
 
     def get_game_state(self) -> tuple[Round | None, RoundResult | None]:
