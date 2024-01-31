@@ -16,6 +16,7 @@ origins = [
     "http://localhost:3001",
     "https://consensus.anog.fr",
     "https://www.consensus.anog.fr",
+    "https://consensus-front.vercel.app"
 ]
 
 app.add_middleware(
