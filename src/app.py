@@ -12,9 +12,10 @@ from src.constants import ROUND_DURATION_SECONDS, INTER_ROUND_DURATION_SECONDS
 app = FastAPI()
 
 origins = [
-    "http://localhost",
     "http://localhost:3000",
-    "http://localhost:8080",
+    "http://localhost:3001",
+    "https://consensus.anog.fr",
+    "https://www.consensus.anog.fr",
 ]
 
 app.add_middleware(
