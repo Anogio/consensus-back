@@ -146,7 +146,7 @@ async def app_startup():
     asyncio.create_task(runner.run_game_loop())
 
 
-@app.get("/healthcheck")
+@app.get("/")
 def healthcheck():
     return {"status": "ok"}
 
