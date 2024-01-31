@@ -16,7 +16,7 @@ origins = [
     "http://localhost:3001",
     "https://consensus.anog.fr",
     "https://www.consensus.anog.fr",
-    "https://consensus-front.vercel.app"
+    "https://consensus-front.vercel.app",
 ]
 
 app.add_middleware(
@@ -63,6 +63,7 @@ class GameRunner:
                 await self.run_game_loop()
             except Exception as e:
                 print("Loop failed with exception: ", repr(e))
+
     async def run_game_loop(self):
         print("Initializing game loop")
         while True:

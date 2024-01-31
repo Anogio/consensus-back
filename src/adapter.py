@@ -2,6 +2,7 @@ from src.entities import PlayerName, RoundId, Round, RoundResult, GuessList, Gam
 
 from typing import Union
 
+
 class StateManager:
     max_rounds_stored = 10
 

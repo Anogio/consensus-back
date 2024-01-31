@@ -1,0 +1,28 @@
+# flyctl launch added from .gitignore
+**/.venv
+**/.idea
+**/.pytest_cache
+**/__pycache__
+
+# flyctl launch added from .idea/.gitignore
+# Default ignored files
+.idea/shelf
+.idea/workspace.xml
+# Editor-based HTTP Client requests
+.idea/httpRequests
+# Datasource local storage ignored files
+.idea/dataSources
+.idea/dataSources.local.xml
+
+# flyctl launch added from .pytest_cache/.gitignore
+# Created by pytest automatically.
+.pytest_cache/**/*
+
+# flyctl launch added from .venv/.gitignore
+# created by virtualenv automatically
+.venv/**/*
+
+# flyctl launch added from test/.pytest_cache/.gitignore
+# Created by pytest automatically.
+test/.pytest_cache/**/*
+fly.toml
