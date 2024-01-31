@@ -1,3 +1,13 @@
+## Install the dependencies
+```
+make install
+```
+
+## Run the app
+```
+make run
+```
+
 ## TODO
 
 - Stop using player names as keys, to allow
