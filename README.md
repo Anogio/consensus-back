@@ -8,6 +8,18 @@ make install
 make run
 ```
 
+## Deployment
+
+The app is deployed on fly.io
+
+After configuring the project, deploy with
+```
+flyctl deploy
+```
+
+It will be made available at `https://consensus-back.fly.dev/` 
+and `https://api.consensus.anog.fr`
+
 ## TODO
 
 - Stop using player names as keys, to allow
