@@ -1,5 +1,4 @@
 fastapi[all]
 websockets
-uuid
 pytest
 black
