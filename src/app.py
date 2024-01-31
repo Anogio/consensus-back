@@ -1,6 +1,8 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import asyncio
 import datetime as dt
+from fastapi.middleware.cors import CORSMiddleware
+
 
 from src.adapter import StateManager
 from src.entities import PlayerName, GuessList, GameError
@@ -8,6 +10,20 @@ from src.game import Game
 from src.constants import ROUND_DURATION_SECONDS, INTER_ROUND_DURATION_SECONDS
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class ConnectionManager:
@@ -128,6 +144,11 @@ runner = GameRunner(manager=connection_manager)
 @app.on_event("startup")
 async def app_startup():
     asyncio.create_task(runner.run_game_loop())
+
+
+@app.get("/healthcheck")
+def healthcheck():
+    return {"status": "ok"}
 
 
 @app.post("/switch")
