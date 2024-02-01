@@ -12,11 +12,7 @@ make run
 
 The app is deployed on fly.io
 
-After configuring the project, deploy with
-```
-flyctl deploy
-```
-
+Every time you push on master, a github action will handle deplyment.
 It will be made available at `https://consensus-back.fly.dev/` 
 and `https://api.consensus.anog.fr`
 
