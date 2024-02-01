@@ -1,7 +1,7 @@
 import dataclasses
 from uuid import UUID
 
-from src.constants import N_GUESSES
+from src.domain.constants import N_GUESSES
 
 PlayerName = str
 RoundId = UUID

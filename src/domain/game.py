@@ -3,9 +3,9 @@ import random
 from collections import defaultdict
 from typing import Union, Tuple
 
-from src.adapter import StateManager
-from src.entities import Round, PlayerName, GuessList, GameError, RoundId, RoundResult
-from src.constants import THEME_WORDS
+from src.state_store import StateStore
+from src.domain.entities import Round, PlayerName, GuessList, GameError, RoundResult
+from src.domain.constants import THEME_WORDS
 
 
 def compute_round_result(guesses_by_player: dict[PlayerName, GuessList]) -> RoundResult:
@@ -24,7 +24,11 @@ def compute_round_result(guesses_by_player: dict[PlayerName, GuessList]) -> Roun
 
 
 class Game:
-    def __init__(self, state: StateManager):
+    """
+    Holds the full game logic: theme selection, guess storage, scoring
+    """
+
+    def __init__(self, state: StateStore):
         self.state = state
 
     @property

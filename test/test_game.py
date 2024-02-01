@@ -1,6 +1,6 @@
-from src.game import Game
-from src.adapter import StateManager
-from src.entities import GameError, GuessList, Round, RoundResult, RoundId
+from src.domain.game import Game
+from src.state_store import StateStore
+from src.domain.entities import GameError, GuessList, Round, RoundResult, RoundId
 
 import pytest
 
@@ -10,7 +10,7 @@ def test_game_base_mechanics():
     We can start a round, complete it and start a new one
     We cannot start multiple rounds at once, or end already completed rounds
     """
-    state = StateManager()
+    state = StateStore()
     game = Game(state)
 
     assert game.get_game_state() == (None, None)
@@ -49,7 +49,7 @@ def test_game_base_mechanics():
 
 
 def test_play_round():
-    state = StateManager()
+    state = StateStore()
     game = Game(state)
 
     game.start_new_round()
@@ -64,7 +64,7 @@ def test_play_round():
 
 
 def test_compute_score_3_players():
-    state = StateManager()
+    state = StateStore()
     game = Game(state)
 
     game.start_new_round()
@@ -84,7 +84,7 @@ def test_compute_score_3_players():
 
 
 def test_replace_guesses():
-    state = StateManager()
+    state = StateStore()
     game = Game(state)
 
     game.start_new_round()

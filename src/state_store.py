@@ -1,9 +1,20 @@
-from src.entities import PlayerName, RoundId, Round, RoundResult, GuessList, GameState
+from src.domain.entities import (
+    PlayerName,
+    RoundId,
+    Round,
+    RoundResult,
+    GuessList,
+    GameState,
+)
 
 from typing import Union
 
 
-class StateManager:
+class StateStore:
+    """
+    Store the state in memory
+    """
+
     max_rounds_stored = 10
 
     def __init__(self):

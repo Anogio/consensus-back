@@ -1,6 +1,6 @@
 import pytest
-from src.entities import GuessList, GameError
-from src.constants import N_GUESSES
+from src.domain.entities import GuessList, GameError
+from src.domain.constants import N_GUESSES
 
 
 def test_guess_list_rejects_too_many_guesses():
