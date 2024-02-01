@@ -69,7 +69,6 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_json()
             try:
-                print("Received data: ", data)
                 # Only one type of event: set the guesses
                 runner.set_guesses(player_name=player_name, guesses=data["words"])
             except GameError as e:
@@ -78,6 +77,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 )
     except WebSocketDisconnect:
         websocket_connection_pool.disconnect(websocket)
+        print(f"Disconnected player: {player_name}")
         await websocket_connection_pool.broadcast(
             {
                 "type": "players_info",
