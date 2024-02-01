@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.connectivity import WebsocketConnectionPool
 from src.domain.entities import GameError
-from src.game_runer import GameRunner
+from src.game_runner import GameRunner
 
 app = FastAPI()
 
